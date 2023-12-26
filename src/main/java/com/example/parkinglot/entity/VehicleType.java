@@ -1,6 +1,6 @@
 package com.example.parkinglot.entity;
 
-public enum VEHICLE_TYPE {
+public enum VehicleType {
     BIKE,
     CAR,
     TRUCK

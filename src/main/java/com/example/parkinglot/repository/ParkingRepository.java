@@ -1,8 +1,9 @@
 package com.example.parkinglot.repository;
 
-import com.example.parkinglot.service.PriceCalculatorService;
+import com.example.parkinglot.entity.VehicleType;
+import com.example.parkinglot.exception.SlotNotAvailableException;
 import com.example.parkinglot.entity.Ticket;
-import com.example.parkinglot.entity.VEHICLE_TYPE;
+import com.example.parkinglot.exception.TicketAlreadyUsedException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
@@ -15,9 +16,7 @@ public class ParkingRepository {
     HashMap<String, Ticket> ticketStore = new HashMap<>();
     HashMap<String, Queue<Integer>> slotStore = new HashMap<>();
 
-    private final PriceCalculatorService priceCalculatorService;
-
-    public Ticket parkAndGetTicket(VEHICLE_TYPE vehicleType) throws Exception {
+    public Ticket parkAndGetTicket(VehicleType vehicleType) throws Exception {
         String vehicleTypeString = String.valueOf(vehicleType);
         if(!slotStore.containsKey(vehicleTypeString)) {
             Queue<Integer> queue = new LinkedList<>();
@@ -26,11 +25,8 @@ public class ParkingRepository {
             }
             slotStore.put(vehicleTypeString, queue);
         }
-        if(slotStore.get(vehicleTypeString).isEmpty()) {
-            throw new Exception("Slot are Not Available for the vehicle of type " + vehicleTypeString);
-        }
-        UUID ticketUuid = UUID.randomUUID();
         int slotId = getSlot(vehicleTypeString);
+        UUID ticketUuid = UUID.randomUUID();
         Ticket ticket = Ticket.builder()
                 .ticketId(ticketUuid.toString())
                 .entryTime(System.currentTimeMillis())
@@ -45,7 +41,7 @@ public class ParkingRepository {
     public Ticket updateExit(String ticketId) throws Exception {
         if(!ticketStore.containsKey(ticketId)) throw new Exception("Ticket Id " + ticketId + " isn't valid!");
         Ticket ticket = ticketStore.get(ticketId);
-        if(ticket.getExitTime() > 0) throw new Exception("Ticket Id " + ticketId + " is already used! You Cheater!");
+        if(ticket.getExitTime() > 0) throw new TicketAlreadyUsedException("Ticket Id " + ticketId + " is already used! You Cheater!");
         ticket.setExitTime(System.currentTimeMillis());
         ticket.setPrice(10L);
         ticketStore.put(ticketId, ticket);
@@ -55,11 +51,8 @@ public class ParkingRepository {
     }
 
     public int getSlot(String vehicleType) throws Exception {
-        if(!slotStore.containsKey(vehicleType)) {
-            throw new Exception("This Vehicle " + vehicleType + " can't be parked!");
-        }
         if (slotStore.get(vehicleType).isEmpty())
-            throw new Exception("Slot are Not Available for the vehicle of type " + vehicleType);
+            throw new SlotNotAvailableException("Slot are Not Available for the vehicle of type " + vehicleType);
         return slotStore.get(vehicleType).peek();
     }
 
