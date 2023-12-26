@@ -21,8 +21,8 @@ public class ParkingLotController {
         return ResponseEntity.ok().body(parkingService.parkAndGetTicket(parkRequest));
     }
 
-    @PutMapping("/onExit/{ticketId}")
-    public ResponseEntity<Ticket> updateExit(@PathVariable(name = "ticketId") String ticketId) throws Exception {
+    @PutMapping("/onExit")
+    public ResponseEntity<Ticket> updateExit(@RequestParam(name = "id") String ticketId) throws Exception {
         return ResponseEntity.ok().body(parkingService.updateExit(ticketId));
     }
 

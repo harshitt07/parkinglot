@@ -14,6 +14,7 @@ public class ParkingService {
 
     private final ParkingRepository parkingRepository;
     private final TicketRepository ticketRepository;
+    private final PriceCalculatorService priceCalculatorService;
 
     public Ticket parkAndGetTicket(ParkRequest parkRequest) throws Exception {
         int slotId = parkingRepository.getParkingSlot(parkRequest.getVehicleType());
@@ -26,7 +27,7 @@ public class ParkingService {
         Ticket ticket = ticketRepository.getTicket(ticketId);
         if(ticket.getExitTime() > 0) throw new TicketAlreadyUsedException("Ticket Id " + ticketId + " is already used! You Cheater!");
         ticket.setExitTime(System.currentTimeMillis());
-        ticket.setPrice(10);// priceCalculatorService.calculatePrice(ticket));
+        ticket.setPrice(priceCalculatorService.calculatePrice(ticket));
         ticketRepository.updateTicket(ticketId, ticket);
         parkingRepository.addEmptySlot(ticket.getVehicleType().toString(), ticket.getSlotId());
         return ticket;
