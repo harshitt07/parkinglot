@@ -12,6 +12,6 @@ public class Ticket {
     long exitTime;
     int slotId;
     VehicleType vehicleType;
-    Long price;
+    int price;
 
 }
