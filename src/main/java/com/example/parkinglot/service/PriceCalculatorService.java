@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 public class PriceCalculatorService {
 
     @Autowired
-    @Qualifier("truckPriceCalculator")
+    @Qualifier(value = "bikePriceCalculator")
     private PriceCalculator priceCalculator;
 
     @Autowired

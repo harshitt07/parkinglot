@@ -15,17 +15,8 @@ public class TicketRepository {
 
     HashMap<String, Ticket> ticketStore = new HashMap<>();
 
-    public Ticket generateTicket(int slotId, ParkRequest parkRequest) {
-        UUID ticketUuid = UUID.randomUUID();
-        Ticket ticket = Ticket.builder()
-                .ticketId(ticketUuid.toString())
-                .entryTime(System.currentTimeMillis())
-                .slotId(slotId)
-                .vehicleType(parkRequest.getVehicleType())
-                .vehicleNumber(parkRequest.getVehicleNumber())
-                .build();
-        ticketStore.put(ticketUuid.toString(), ticket);
-        return ticket;
+    public void save(String ticketId, Ticket ticket) {
+        ticketStore.put(ticketId, ticket);
     }
 
     public Ticket getTicket(String ticketId) throws Exception {
@@ -33,7 +24,7 @@ public class TicketRepository {
         return ticketStore.get(ticketId);
     }
 
-    public void updateTicket(String ticketId, Ticket ticket) throws Exception {
+    public void updateTicket(String ticketId, Ticket ticket) {
         ticketStore.put(ticketId, ticket);
     }
 }

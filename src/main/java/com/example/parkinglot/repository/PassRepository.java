@@ -16,8 +16,8 @@ public class PassRepository {
     }
 
     public Pass getPass(String vehicleNumber) {
-        if (!passStore.containsKey(vehicleNumber)) return null;
-        return passStore.get(vehicleNumber);
+        if (passStore.containsKey(vehicleNumber)) return passStore.get(vehicleNumber);
+        return null;
     }
 
 }
