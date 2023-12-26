@@ -13,5 +13,5 @@ public class Ticket {
     int slotId;
     VehicleType vehicleType;
     int price;
-
+    String vehicleNumber;
 }
