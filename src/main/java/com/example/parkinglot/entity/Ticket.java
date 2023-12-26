@@ -10,7 +10,7 @@ public class Ticket {
     String ticketId;
     long entryTime;
     long exitTime;
-    String slotId;
+    int slotId;
     VEHICLE_TYPE vehicleType;
     Long price;
 

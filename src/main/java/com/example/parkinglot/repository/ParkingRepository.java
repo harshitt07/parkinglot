@@ -13,29 +13,33 @@ import java.util.*;
 public class ParkingRepository {
     private final static int limit = 2;
     HashMap<String, Ticket> ticketStore = new HashMap<>();
-    HashMap<String, List<String>> slotStore = new HashMap<>();
+    HashMap<String, Queue<Integer>> slotStore = new HashMap<>();
 
     private final PriceCalculatorService priceCalculatorService;
 
     public Ticket parkAndGetTicket(VEHICLE_TYPE vehicleType) throws Exception {
         String vehicleTypeString = String.valueOf(vehicleType);
         if(!slotStore.containsKey(vehicleTypeString)) {
-            slotStore.put(vehicleTypeString, new ArrayList<>());
+            Queue<Integer> queue = new LinkedList<>();
+            for(int i = 0; i < limit; i++) {
+                queue.add(i);
+            }
+            slotStore.put(vehicleTypeString, queue);
         }
-        if(slotStore.get(vehicleTypeString).size() < limit) {
-            UUID ticketUuid = UUID.randomUUID();
-            UUID slotUuid = UUID.randomUUID();
-            Ticket ticket = Ticket.builder()
-                    .ticketId(ticketUuid.toString())
-                    .entryTime(System.currentTimeMillis())
-                    .slotId(slotUuid.toString())
-                    .vehicleType(vehicleType)
-                    .build();
-            ticketStore.put(ticketUuid.toString(), ticket);
-            slotStore.get(vehicleTypeString).add(slotUuid.toString());
-            return ticket;
+        if(slotStore.get(vehicleTypeString).isEmpty()) {
+            throw new Exception("Slot are Not Available for the vehicle of type " + vehicleTypeString);
         }
-        throw new Exception("Slot are Not Available for the vehicle of type " + vehicleTypeString);
+        UUID ticketUuid = UUID.randomUUID();
+        int slotId = getSlot(vehicleTypeString);
+        Ticket ticket = Ticket.builder()
+                .ticketId(ticketUuid.toString())
+                .entryTime(System.currentTimeMillis())
+                .slotId(slotId)
+                .vehicleType(vehicleType)
+                .build();
+        ticketStore.put(ticketUuid.toString(), ticket);
+        removeSlot(vehicleTypeString);
+        return ticket;
     }
 
     public Ticket updateExit(String ticketId) throws Exception {
@@ -45,8 +49,21 @@ public class ParkingRepository {
         ticket.setExitTime(System.currentTimeMillis());
         ticket.setPrice(10L);
         ticketStore.put(ticketId, ticket);
-        slotStore.get((ticket.getVehicleType()).toString()).remove(ticket.getSlotId());
+        int removedSlotId = ticket.getSlotId();
+        slotStore.get((ticket.getVehicleType()).toString()).add(removedSlotId);
         return ticket;
     }
 
+    public int getSlot(String vehicleType) throws Exception {
+        if(!slotStore.containsKey(vehicleType)) {
+            throw new Exception("This Vehicle " + vehicleType + " can't be parked!");
+        }
+        if (slotStore.get(vehicleType).isEmpty())
+            throw new Exception("Slot are Not Available for the vehicle of type " + vehicleType);
+        return slotStore.get(vehicleType).peek();
+    }
+
+    public void removeSlot(String vehicleType) throws Exception {
+        slotStore.get(vehicleType).poll();
+    }
 }
